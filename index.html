@@ -40,7 +40,25 @@
   </header>
 
   <main>
-    <section class="view" data-view="lista">
+    <section class="view" data-view="inicio">
+      <div class="inicio-conteudo">
+        <svg class="inicio-ilustracao" viewBox="0 0 160 160" width="148" height="148" aria-hidden="true">
+          <circle cx="80" cy="84" r="68" style="fill: var(--cor-acento-claro)"/>
+          <path d="M50 78 Q80 20 110 78" fill="none" style="stroke: var(--cor-acento)" stroke-width="5" stroke-linecap="round"/>
+          <path d="M44 78 L116 78 L102 124 L58 124 Z" style="fill: var(--cor-superficie); stroke: var(--cor-acento)" stroke-width="5" stroke-linejoin="round"/>
+          <line x1="50" y1="94" x2="110" y2="94" style="stroke: var(--cor-acento)" stroke-width="3" opacity="0.45"/>
+          <line x1="55" y1="110" x2="105" y2="110" style="stroke: var(--cor-acento)" stroke-width="3" opacity="0.45"/>
+          <rect x="76" y="42" width="16" height="18" rx="3" style="fill: var(--cor-superficie); stroke: var(--cor-acento)" stroke-width="4"/>
+          <circle cx="66" cy="60" r="11" style="fill: var(--cor-acento)"/>
+          <circle cx="97" cy="56" r="8" style="fill: var(--cor-acento-escuro)"/>
+        </svg>
+        <h2 class="inicio-titulo">Lista de Mercado</h2>
+        <p class="inicio-tagline">Sua lista, sempre à mão.</p>
+        <button id="btn-iniciar-compra" class="botao-primario botao-hero">Iniciar compra</button>
+      </div>
+    </section>
+
+    <section class="view" data-view="lista" hidden>
       <div id="lista-itens" class="lista-itens"></div>
     </section>
 
@@ -65,13 +83,13 @@
     </section>
   </main>
 
-  <button id="btn-abrir-adicionar" class="botao-fab" aria-label="Adicionar item">
+  <button id="btn-abrir-adicionar" class="botao-fab" aria-label="Adicionar item" hidden>
     <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
       <path d="M12 4 L12 20 M4 12 L20 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
     </svg>
   </button>
 
-  <div id="bottom-bar" class="bottom-bar">
+  <div id="bottom-bar" class="bottom-bar" hidden>
     <div class="bottom-bar-info">
       <span id="total-valor" class="bottom-bar-valor">R$ 0,00</span>
       <span id="total-progresso" class="bottom-bar-progresso">0/0 itens</span>

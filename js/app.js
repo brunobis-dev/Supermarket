@@ -9,6 +9,7 @@ let sugestaoSelecionada = null; // item do catálogo casado com o texto digitado
 document.addEventListener('DOMContentLoaded', iniciar);
 
 async function iniciar() {
+  mostrarView('inicio');
   registrarServiceWorker();
   aplicarIconeTema();
   await abrirDB();
@@ -550,6 +551,7 @@ function mostrarToast(mensagem) {
 // --- Wiring de eventos ---
 
 function configurarEventos() {
+  document.getElementById('btn-iniciar-compra').addEventListener('click', () => mostrarView('lista'));
   document.getElementById('btn-alternar-tema').addEventListener('click', alternarTema);
   document.getElementById('btn-abrir-adicionar').addEventListener('click', () => abrirFormularioItem(null));
   document.getElementById('btn-fechar-sheet').addEventListener('click', fecharFormularioItem);

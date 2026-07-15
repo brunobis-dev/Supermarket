@@ -24,6 +24,8 @@ sem HTTPS (limitação de "secure context" do Safari não se aplica a
 ## Estado atual
 
 MVP completo:
+- Tela inicial com ilustração e botão "Iniciar compra" (a lista fica
+  escondida até você entrar de propósito)
 - Catálogo pré-cadastrado (~60 produtos, 9 categorias)
 - Lista de compras com adicionar/editar/remover, autocomplete, categoria
   auto-sugerida, alternância entre preço total e por unidade
