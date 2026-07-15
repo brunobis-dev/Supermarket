@@ -10,11 +10,40 @@ document.addEventListener('DOMContentLoaded', iniciar);
 
 async function iniciar() {
   registrarServiceWorker();
+  aplicarIconeTema();
   await abrirDB();
   catalogoCache = await buscarCatalogo();
   listaAtualCache = await buscarListaAtual();
   renderizarLista();
   configurarEventos();
+}
+
+// --- Tema (claro/escuro) ---
+
+function temaAtivo() {
+  return document.documentElement.getAttribute('data-tema') === 'dark' ? 'dark' : 'light';
+}
+
+function aplicarIconeTema() {
+  const btn = document.getElementById('btn-alternar-tema');
+  if (!btn) return;
+  const ativo = temaAtivo();
+  btn.textContent = ativo === 'dark' ? '☀️' : '🌙';
+  btn.setAttribute('aria-label', ativo === 'dark' ? 'Mudar para modo claro' : 'Mudar para modo escuro');
+  sincronizarThemeColor(ativo);
+}
+
+function sincronizarThemeColor(tema) {
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (!meta) return;
+  meta.setAttribute('content', tema === 'dark' ? '#1C1F22' : '#FFFFFF');
+}
+
+function alternarTema() {
+  const novo = temaAtivo() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-tema', novo);
+  localStorage.setItem('tema', novo);
+  aplicarIconeTema();
 }
 
 function registrarServiceWorker() {
@@ -38,12 +67,16 @@ function mostrarView(nomeView) {
 
 // --- Renderização da lista ativa ---
 
+let primeiraRenderizacaoLista = true;
+
 function renderizarLista() {
   const container = document.getElementById('lista-itens');
   container.innerHTML = '';
+  const animar = primeiraRenderizacaoLista;
+  primeiraRenderizacaoLista = false;
 
   if (listaAtualCache.length === 0) {
-    container.innerHTML = '<p class="estado-vazio">Sua lista está vazia. Toque em "+" para adicionar um item.</p>';
+    container.innerHTML = '<p class="estado-vazio"><span class="estado-vazio-icone">🛒</span><br>Sua lista está vazia.<br>Toque em "+" para adicionar um item.</p>';
     renderizarTotais();
     return;
   }
@@ -51,6 +84,7 @@ function renderizarLista() {
   const porCategoria = agruparPorCategoria(listaAtualCache);
   const categorias = Object.keys(porCategoria).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
+  let indice = 0;
   for (const categoria of categorias) {
     const grupo = document.createElement('div');
     grupo.className = 'grupo-categoria';
@@ -61,7 +95,13 @@ function renderizarLista() {
     grupo.appendChild(titulo);
 
     for (const item of porCategoria[categoria]) {
-      grupo.appendChild(criarLinhaItem(item));
+      const linha = criarLinhaItem(item);
+      if (animar) {
+        linha.classList.add('entrada-item');
+        linha.style.animationDelay = `${Math.min(indice * 30, 300)}ms`;
+      }
+      indice++;
+      grupo.appendChild(linha);
     }
     container.appendChild(grupo);
   }
@@ -386,11 +426,12 @@ async function abrirHistorico() {
   container.innerHTML = '';
 
   if (historico.length === 0) {
-    container.innerHTML = '<p class="estado-vazio">Nenhuma compra finalizada ainda.</p>';
+    container.innerHTML = '<p class="estado-vazio"><span class="estado-vazio-icone">🧾</span><br>Nenhuma compra finalizada ainda.</p>';
   } else {
-    for (const compra of historico) {
+    historico.forEach((compra, indice) => {
       const linha = document.createElement('button');
-      linha.className = 'historico-linha';
+      linha.className = 'historico-linha entrada-item';
+      linha.style.animationDelay = `${Math.min(indice * 30, 300)}ms`;
 
       const dataEl = document.createElement('span');
       dataEl.className = 'historico-data';
@@ -404,7 +445,7 @@ async function abrirHistorico() {
       linha.appendChild(totalEl);
       linha.addEventListener('click', () => abrirDetalheCompra(compra));
       container.appendChild(linha);
-    }
+    });
   }
   mostrarView('historico');
 }
@@ -416,9 +457,10 @@ function abrirDetalheCompra(compra) {
   const container = document.getElementById('detalhe-itens');
   container.innerHTML = '';
 
-  for (const item of compra.itens) {
+  compra.itens.forEach((item, indice) => {
     const linha = document.createElement('div');
-    linha.className = 'item-linha somente-leitura';
+    linha.className = 'item-linha somente-leitura entrada-item';
+    linha.style.animationDelay = `${Math.min(indice * 30, 300)}ms`;
 
     const info = document.createElement('div');
     info.className = 'item-info';
@@ -432,7 +474,7 @@ function abrirDetalheCompra(compra) {
     info.appendChild(detalheEl);
     linha.appendChild(info);
     container.appendChild(linha);
-  }
+  });
 
   mostrarView('detalhe');
 }
@@ -508,6 +550,7 @@ function mostrarToast(mensagem) {
 // --- Wiring de eventos ---
 
 function configurarEventos() {
+  document.getElementById('btn-alternar-tema').addEventListener('click', alternarTema);
   document.getElementById('btn-abrir-adicionar').addEventListener('click', () => abrirFormularioItem(null));
   document.getElementById('btn-fechar-sheet').addEventListener('click', fecharFormularioItem);
   document.getElementById('form-item').addEventListener('submit', salvarItem);

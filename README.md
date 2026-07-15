@@ -81,6 +81,20 @@ scripts/generate-icons.js  gera os ícones acima (rodar com `node scripts/genera
   sobre fundo verde-acento) — troque os PNGs em `icons/` por uma logo de
   verdade quando tiver uma; os tamanhos/nomes de arquivo já batem com o
   `manifest.json`.
+- **Tipografia**: "Iowan Old Style" (serif, títulos/valores) + "Avenir
+  Next" (geométrica, corpo/UI) — ambas nativas do iOS/macOS, sem nenhum
+  web font via CDN. Em dispositivos que não têm essas fontes (ex: testar
+  no Windows), cai pra Georgia/Segoe UI — funciona, só não é exatamente o
+  visual pretendido, que é no iPhone mesmo.
+- **Modo escuro**: segue o sistema por padrão; o botão 🌙/☀️ no cabeçalho
+  força um tema específico, salvo em `localStorage` (chave `tema`) e
+  aplicado via atributo `data-tema` no `<html>`. Um script inline no
+  `<head>` aplica isso antes do primeiro paint pra não piscar o tema
+  errado ao abrir o app.
+- **Textura de grão no fundo**: SVG de ruído embutido no CSS, opacidade
+  bem baixa (~5%). É o único efeito visual que não consegui pré-visualizar
+  (não tenho como renderizar CSS aqui) — vale conferir se ficou sutil o
+  suficiente ou se é melhor remover.
 
 ## Deploy (GitHub Pages)
 

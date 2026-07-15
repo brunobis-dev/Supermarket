@@ -6,6 +6,18 @@
   <meta name="theme-color" content="#2E9E6D">
   <meta name="description" content="Lista de compras do mercado, offline-first, com histórico e catálogo de produtos.">
 
+  <script>
+    // Aplica o tema (salvo ou do sistema) antes do primeiro paint, pra não
+    // piscar o tema errado por uma fração de segundo ao abrir o app.
+    (function () {
+      var salvo = localStorage.getItem('tema');
+      var tema = (salvo === 'dark' || salvo === 'light')
+        ? salvo
+        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-tema', tema);
+    })();
+  </script>
+
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Mercado">
@@ -21,6 +33,7 @@
   <header class="app-header">
     <h1>Lista de Mercado</h1>
     <div class="app-header-acoes">
+      <button id="btn-alternar-tema" class="botao-icone" aria-label="Alternar modo escuro">🌙</button>
       <button id="btn-abrir-backup" class="botao-icone" aria-label="Backup dos dados">⚙</button>
       <button id="btn-ir-historico" class="botao-icone" aria-label="Histórico de compras">🕘</button>
     </div>
@@ -66,6 +79,7 @@
   <div id="sheet-item" class="sheet" hidden>
     <div class="sheet-backdrop" data-fechar-sheet></div>
     <div class="sheet-painel">
+      <div class="sheet-alca"></div>
       <div class="sheet-cabecalho">
         <h2 id="sheet-titulo">Adicionar item</h2>
         <button id="btn-fechar-sheet" class="botao-icone" aria-label="Fechar">✕</button>
@@ -151,6 +165,7 @@
   <div id="sheet-backup" class="sheet" hidden>
     <div class="sheet-backdrop" data-fechar-sheet></div>
     <div class="sheet-painel">
+      <div class="sheet-alca"></div>
       <div class="sheet-cabecalho">
         <h2>Backup dos dados</h2>
         <button id="btn-fechar-backup" class="botao-icone" aria-label="Fechar">✕</button>
