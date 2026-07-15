@@ -1,15 +1,22 @@
 // App shell em cache-first. Suba o número da versão a cada deploy para
 // invalidar o cache antigo automaticamente.
-const CACHE_NOME = 'lista-mercado-v9';
+const CACHE_NOME = 'lista-mercado-v10';
 
 const ARQUIVOS_APP_SHELL = [
   './',
   './index.html',
+  './lista.html',
+  './historico.html',
+  './detalhe.html',
   './manifest.json',
   './css/style.css',
   './js/catalogo.js',
   './js/db.js',
-  './js/app.js',
+  './js/comum.js',
+  './js/inicio.js',
+  './js/lista.js',
+  './js/historico.js',
+  './js/detalhe.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',
@@ -37,7 +44,10 @@ self.addEventListener('fetch', (evento) => {
   if (evento.request.method !== 'GET') return;
 
   evento.respondWith(
-    caches.match(evento.request).then((respostaCache) => {
+    // ignoreSearch: detalhe.html?id=N tem query string variável por
+    // compra, mas o arquivo cacheado é sempre './detalhe.html' — sem
+    // isso, cada id diferente seria um cache-miss offline.
+    caches.match(evento.request, { ignoreSearch: true }).then((respostaCache) => {
       if (respostaCache) return respostaCache;
 
       return fetch(evento.request)

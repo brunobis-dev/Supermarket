@@ -8,7 +8,7 @@
 
   <script>
     // Aplica o tema (salvo ou do sistema) antes do primeiro paint, pra não
-    // piscar o tema errado por uma fração de segundo ao abrir o app.
+    // piscar o tema errado por uma fração de segundo ao abrir a página.
     (function () {
       var salvo = localStorage.getItem('tema');
       var tema = (salvo === 'dark' || salvo === 'light')
@@ -30,175 +30,28 @@
   <title>Lista de Mercado</title>
 </head>
 <body>
-  <header class="app-header">
-    <h1>Lista de Mercado</h1>
-    <div class="app-header-acoes">
-      <button id="btn-alternar-tema" class="botao-icone" aria-label="Alternar modo escuro">🌙</button>
-      <button id="btn-abrir-backup" class="botao-icone" aria-label="Backup dos dados">⚙</button>
-      <button id="btn-ir-historico" class="botao-icone" aria-label="Histórico de compras">🕘</button>
+  <button id="btn-alternar-tema" class="botao-icone botao-tema-flutuante" aria-label="Alternar modo escuro">🌙</button>
+
+  <main class="tela-inicio">
+    <div class="inicio-conteudo">
+      <svg class="inicio-ilustracao" viewBox="0 0 160 160" width="148" height="148" aria-hidden="true">
+        <circle cx="80" cy="84" r="68" style="fill: var(--cor-acento-claro)"/>
+        <path d="M50 78 Q80 20 110 78" fill="none" style="stroke: var(--cor-acento)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M44 78 L116 78 L102 124 L58 124 Z" style="fill: var(--cor-superficie); stroke: var(--cor-acento)" stroke-width="5" stroke-linejoin="round"/>
+        <line x1="50" y1="94" x2="110" y2="94" style="stroke: var(--cor-acento)" stroke-width="3" opacity="0.45"/>
+        <line x1="55" y1="110" x2="105" y2="110" style="stroke: var(--cor-acento)" stroke-width="3" opacity="0.45"/>
+        <rect x="76" y="42" width="16" height="18" rx="3" style="fill: var(--cor-superficie); stroke: var(--cor-acento)" stroke-width="4"/>
+        <circle cx="66" cy="60" r="11" style="fill: var(--cor-acento)"/>
+        <circle cx="97" cy="56" r="8" style="fill: var(--cor-acento-escuro)"/>
+      </svg>
+      <h1 class="inicio-titulo">Lista de Mercado</h1>
+      <p class="inicio-tagline">Sua lista, sempre à mão.</p>
+      <a href="./lista.html" class="botao-primario botao-hero">Iniciar compra</a>
+      <a href="./historico.html" class="link-secundario">Ver histórico de compras</a>
     </div>
-  </header>
-
-  <main>
-    <section class="view" data-view="inicio">
-      <div class="inicio-conteudo">
-        <svg class="inicio-ilustracao" viewBox="0 0 160 160" width="148" height="148" aria-hidden="true">
-          <circle cx="80" cy="84" r="68" style="fill: var(--cor-acento-claro)"/>
-          <path d="M50 78 Q80 20 110 78" fill="none" style="stroke: var(--cor-acento)" stroke-width="5" stroke-linecap="round"/>
-          <path d="M44 78 L116 78 L102 124 L58 124 Z" style="fill: var(--cor-superficie); stroke: var(--cor-acento)" stroke-width="5" stroke-linejoin="round"/>
-          <line x1="50" y1="94" x2="110" y2="94" style="stroke: var(--cor-acento)" stroke-width="3" opacity="0.45"/>
-          <line x1="55" y1="110" x2="105" y2="110" style="stroke: var(--cor-acento)" stroke-width="3" opacity="0.45"/>
-          <rect x="76" y="42" width="16" height="18" rx="3" style="fill: var(--cor-superficie); stroke: var(--cor-acento)" stroke-width="4"/>
-          <circle cx="66" cy="60" r="11" style="fill: var(--cor-acento)"/>
-          <circle cx="97" cy="56" r="8" style="fill: var(--cor-acento-escuro)"/>
-        </svg>
-        <h2 class="inicio-titulo">Lista de Mercado</h2>
-        <p class="inicio-tagline">Sua lista, sempre à mão.</p>
-        <button id="btn-iniciar-compra" class="botao-primario botao-hero">Iniciar compra</button>
-      </div>
-    </section>
-
-    <section class="view" data-view="lista" hidden>
-      <div id="lista-itens" class="lista-itens"></div>
-    </section>
-
-    <section class="view" data-view="historico" hidden>
-      <div class="view-header-secundaria">
-        <button id="btn-voltar-lista" class="botao-icone" aria-label="Voltar">←</button>
-        <h2>Histórico de compras</h2>
-      </div>
-      <div id="lista-historico" class="lista-historico"></div>
-    </section>
-
-    <section class="view" data-view="detalhe" hidden>
-      <div class="view-header-secundaria">
-        <button id="btn-voltar-historico" class="botao-icone" aria-label="Voltar">←</button>
-        <h2>Detalhes da compra</h2>
-      </div>
-      <div class="detalhe-resumo">
-        <span id="detalhe-data"></span>
-        <span id="detalhe-total"></span>
-      </div>
-      <div id="detalhe-itens" class="lista-itens"></div>
-    </section>
   </main>
 
-  <button id="btn-abrir-adicionar" class="botao-fab" aria-label="Adicionar item" hidden>
-    <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
-      <path d="M12 4 L12 20 M4 12 L20 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-    </svg>
-  </button>
-
-  <div id="bottom-bar" class="bottom-bar" hidden>
-    <div class="bottom-bar-info">
-      <span id="total-valor" class="bottom-bar-valor">R$ 0,00</span>
-      <span id="total-progresso" class="bottom-bar-progresso">0/0 itens</span>
-    </div>
-    <button id="btn-finalizar-compra" class="botao-primario">Finalizar compra</button>
-  </div>
-
-  <!-- Sheet: adicionar/editar item -->
-  <div id="sheet-item" class="sheet" hidden>
-    <div class="sheet-backdrop" data-fechar-sheet></div>
-    <div class="sheet-painel">
-      <div class="sheet-alca"></div>
-      <div class="sheet-cabecalho">
-        <h2 id="sheet-titulo">Adicionar item</h2>
-        <button id="btn-fechar-sheet" class="botao-icone" aria-label="Fechar">✕</button>
-      </div>
-
-      <form id="form-item">
-        <div class="campo campo-nome-wrapper">
-          <label for="campo-nome">Produto</label>
-          <input id="campo-nome" name="nome" type="text" autocomplete="off" required placeholder="Ex: Arroz">
-          <ul id="lista-sugestoes" class="lista-sugestoes" hidden></ul>
-        </div>
-
-        <div class="campo">
-          <label for="campo-marca">Marca <span class="campo-opcional">(opcional)</span></label>
-          <input id="campo-marca" name="marca" type="text" autocomplete="off" placeholder="Ex: Tio João">
-        </div>
-
-        <div class="campo-linha">
-          <div class="campo campo-quantidade-wrapper">
-            <label for="campo-quantidade">Quantidade</label>
-            <input id="campo-quantidade" name="quantidade" type="number" inputmode="decimal" step="0.01" min="0.01" value="1" required>
-          </div>
-          <div class="campo campo-unidade-wrapper">
-            <label for="campo-unidade">Unidade</label>
-            <select id="campo-unidade" name="unidade">
-              <option value="un">un</option>
-              <option value="kg">kg</option>
-              <option value="g">g</option>
-              <option value="L">L</option>
-              <option value="ml">ml</option>
-              <option value="dz">dz</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="campo">
-          <label for="campo-categoria">Categoria</label>
-          <select id="campo-categoria" name="categoria">
-            <option>Hortifruti</option>
-            <option>Carnes</option>
-            <option>Laticínios</option>
-            <option>Limpeza</option>
-            <option>Higiene</option>
-            <option>Mercearia</option>
-            <option>Bebidas</option>
-            <option>Padaria</option>
-            <option>Congelados</option>
-          </select>
-        </div>
-
-        <div class="campo">
-          <div class="campo-cabecalho-com-toggle">
-            <label id="rotulo-valor" for="campo-valor">Valor total</label>
-            <div class="toggle-modo-preco">
-              <button type="button" id="btn-modo-total" class="ativo">Total</button>
-              <button type="button" id="btn-modo-unitario">Unitário</button>
-            </div>
-          </div>
-          <input id="campo-valor" name="valor" type="text" inputmode="numeric" placeholder="R$ 0,00">
-        </div>
-
-        <div class="sheet-acoes">
-          <button type="button" id="btn-excluir-item" class="botao-perigo" hidden>Excluir</button>
-          <button type="submit" class="botao-primario">Salvar</button>
-        </div>
-      </form>
-
-      <div id="banner-confirmar-catalogo" class="banner-confirmacao" hidden>
-        <span id="banner-confirmar-texto"></span>
-        <div class="banner-acoes">
-          <button id="banner-nao" class="botao-secundario">Não</button>
-          <button id="banner-sim" class="botao-primario">Sim</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Sheet: backup -->
-  <div id="sheet-backup" class="sheet" hidden>
-    <div class="sheet-backdrop" data-fechar-sheet></div>
-    <div class="sheet-painel">
-      <div class="sheet-alca"></div>
-      <div class="sheet-cabecalho">
-        <h2>Backup dos dados</h2>
-        <button id="btn-fechar-backup" class="botao-icone" aria-label="Fechar">✕</button>
-      </div>
-      <p class="texto-explicativo">Seus dados ficam só neste aparelho. Exporte um backup de vez em quando para não perder tudo se trocar de celular ou limpar o Safari.</p>
-      <button id="btn-exportar-backup" class="botao-primario">Exportar backup (.json)</button>
-      <button id="btn-importar-backup" class="botao-secundario">Importar backup</button>
-      <input type="file" id="input-backup-import" accept="application/json" hidden>
-    </div>
-  </div>
-
-  <div id="toast" class="toast"></div>
-
-  <script src="./js/catalogo.js"></script>
-  <script src="./js/db.js"></script>
-  <script src="./js/app.js"></script>
+  <script src="./js/comum.js"></script>
+  <script src="./js/inicio.js"></script>
 </body>
 </html>

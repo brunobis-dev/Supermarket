@@ -173,6 +173,12 @@ async function buscarHistorico() {
   return itens.sort((a, b) => new Date(b.data) - new Date(a.data));
 }
 
+async function buscarCompraPorId(id) {
+  const db = await abrirDB();
+  const tx = db.transaction(STORE_HISTORICO, 'readonly');
+  return promisificarRequest(tx.objectStore(STORE_HISTORICO).get(id));
+}
+
 async function salvarCompraNoHistorico(compra) {
   return adicionar(STORE_HISTORICO, compra);
 }

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+  <meta name="theme-color" content="#2E9E6D">
+  <meta name="description" content="Lista de compras em andamento.">
+
+  <script>
+    (function () {
+      var salvo = localStorage.getItem('tema');
+      var tema = (salvo === 'dark' || salvo === 'light')
+        ? salvo
+        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-tema', tema);
+    })();
+  </script>
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mercado">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./css/style.css">
+
+  <title>Lista de compras — Lista de Mercado</title>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Lista de Mercado</h1>
+    <div class="app-header-acoes">
+      <button id="btn-alternar-tema" class="botao-icone" aria-label="Alternar modo escuro">🌙</button>
+      <button id="btn-abrir-backup" class="botao-icone" aria-label="Backup dos dados">⚙</button>
+      <a href="./historico.html" class="botao-icone" aria-label="Histórico de compras">🕘</a>
+    </div>
+  </header>
+
+  <main>
+    <div id="lista-itens" class="lista-itens"></div>
+  </main>
+
+  <button id="btn-abrir-adicionar" class="botao-fab" aria-label="Adicionar item">
+    <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+      <path d="M12 4 L12 20 M4 12 L20 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <div id="bottom-bar" class="bottom-bar">
+    <div class="bottom-bar-info">
+      <span id="total-valor" class="bottom-bar-valor">R$ 0,00</span>
+      <span id="total-progresso" class="bottom-bar-progresso">0/0 itens</span>
+    </div>
+    <button id="btn-finalizar-compra" class="botao-primario">Finalizar compra</button>
+  </div>
+
+  <!-- Sheet: adicionar/editar item -->
+  <div id="sheet-item" class="sheet" hidden>
+    <div class="sheet-backdrop" data-fechar-sheet></div>
+    <div class="sheet-painel">
+      <div class="sheet-alca"></div>
+      <div class="sheet-cabecalho">
+        <h2 id="sheet-titulo">Adicionar item</h2>
+        <button id="btn-fechar-sheet" class="botao-icone" aria-label="Fechar">✕</button>
+      </div>
+
+      <form id="form-item">
+        <div class="campo campo-nome-wrapper">
+          <label for="campo-nome">Produto</label>
+          <input id="campo-nome" name="nome" type="text" autocomplete="off" required placeholder="Ex: Arroz">
+          <ul id="lista-sugestoes" class="lista-sugestoes" hidden></ul>
+        </div>
+
+        <div class="campo">
+          <label for="campo-marca">Marca <span class="campo-opcional">(opcional)</span></label>
+          <input id="campo-marca" name="marca" type="text" autocomplete="off" placeholder="Ex: Tio João">
+        </div>
+
+        <div class="campo-linha">
+          <div class="campo campo-quantidade-wrapper">
+            <label for="campo-quantidade">Quantidade</label>
+            <input id="campo-quantidade" name="quantidade" type="number" inputmode="decimal" step="0.01" min="0.01" value="1" required>
+          </div>
+          <div class="campo campo-unidade-wrapper">
+            <label for="campo-unidade">Unidade</label>
+            <select id="campo-unidade" name="unidade">
+              <option value="un">un</option>
+              <option value="kg">kg</option>
+              <option value="g">g</option>
+              <option value="L">L</option>
+              <option value="ml">ml</option>
+              <option value="dz">dz</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="campo-categoria">Categoria</label>
+          <select id="campo-categoria" name="categoria">
+            <option>Hortifruti</option>
+            <option>Carnes</option>
+            <option>Laticínios</option>
+            <option>Limpeza</option>
+            <option>Higiene</option>
+            <option>Mercearia</option>
+            <option>Bebidas</option>
+            <option>Padaria</option>
+            <option>Congelados</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <div class="campo-cabecalho-com-toggle">
+            <label id="rotulo-valor" for="campo-valor">Valor total</label>
+            <div class="toggle-modo-preco">
+              <button type="button" id="btn-modo-total" class="ativo">Total</button>
+              <button type="button" id="btn-modo-unitario">Unitário</button>
+            </div>
+          </div>
+          <input id="campo-valor" name="valor" type="text" inputmode="numeric" placeholder="R$ 0,00">
+        </div>
+
+        <div class="sheet-acoes">
+          <button type="button" id="btn-excluir-item" class="botao-perigo" hidden>Excluir</button>
+          <button type="submit" class="botao-primario">Salvar</button>
+        </div>
+      </form>
+
+      <div id="banner-confirmar-catalogo" class="banner-confirmacao" hidden>
+        <span id="banner-confirmar-texto"></span>
+        <div class="banner-acoes">
+          <button id="banner-nao" class="botao-secundario">Não</button>
+          <button id="banner-sim" class="botao-primario">Sim</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sheet: backup -->
+  <div id="sheet-backup" class="sheet" hidden>
+    <div class="sheet-backdrop" data-fechar-sheet></div>
+    <div class="sheet-painel">
+      <div class="sheet-alca"></div>
+      <div class="sheet-cabecalho">
+        <h2>Backup dos dados</h2>
+        <button id="btn-fechar-backup" class="botao-icone" aria-label="Fechar">✕</button>
+      </div>
+      <p class="texto-explicativo">Seus dados ficam só neste aparelho. Exporte um backup de vez em quando para não perder tudo se trocar de celular ou limpar o Safari.</p>
+      <button id="btn-exportar-backup" class="botao-primario">Exportar backup (.json)</button>
+      <button id="btn-importar-backup" class="botao-secundario">Importar backup</button>
+      <input type="file" id="input-backup-import" accept="application/json" hidden>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="./js/catalogo.js"></script>
+  <script src="./js/db.js"></script>
+  <script src="./js/comum.js"></script>
+  <script src="./js/lista.js"></script>
+</body>
+</html>

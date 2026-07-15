@@ -1,5 +1,6 @@
-// Estado em memória (espelha o IndexedDB; recarregado após cada escrita —
-// os volumes de dados aqui são pequenos o bastante pra isso ser trivial).
+// Lógica da página lista.html — a tela principal de trabalho do app.
+// Depende de comum.js (tema, formatação, toast, sheets) e db.js/catalogo.js.
+
 let catalogoCache = [];
 let listaAtualCache = [];
 let itemEmEdicaoId = null; // null = criando um item novo
@@ -9,73 +10,13 @@ let sugestaoSelecionada = null; // item do catálogo casado com o texto digitado
 document.addEventListener('DOMContentLoaded', iniciar);
 
 async function iniciar() {
-  mostrarView('inicio');
   registrarServiceWorker();
-  aplicarIconeTema();
+  configurarBotaoTema();
   await abrirDB();
   catalogoCache = await buscarCatalogo();
   listaAtualCache = await buscarListaAtual();
   renderizarLista();
   configurarEventos();
-}
-
-// --- Tema (claro/escuro) ---
-
-function temaAtivo() {
-  return document.documentElement.getAttribute('data-tema') === 'dark' ? 'dark' : 'light';
-}
-
-function aplicarIconeTema() {
-  const btn = document.getElementById('btn-alternar-tema');
-  if (!btn) return;
-  const ativo = temaAtivo();
-  btn.textContent = ativo === 'dark' ? '☀️' : '🌙';
-  btn.setAttribute('aria-label', ativo === 'dark' ? 'Mudar para modo claro' : 'Mudar para modo escuro');
-  sincronizarThemeColor(ativo);
-}
-
-function sincronizarThemeColor(tema) {
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (!meta) return;
-  meta.setAttribute('content', tema === 'dark' ? '#1C1F22' : '#FFFFFF');
-}
-
-function alternarTema() {
-  const novo = temaAtivo() === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-tema', novo);
-  localStorage.setItem('tema', novo);
-  aplicarIconeTema();
-}
-
-function registrarServiceWorker() {
-  if (!('serviceWorker' in navigator)) return;
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch((erro) => {
-      console.error('Falha ao registrar service worker:', erro);
-    });
-  });
-}
-
-// --- Navegação entre views ---
-
-function mostrarView(nomeView, direcao) {
-  const viewAnterior = document.querySelector('.view:not([hidden])');
-
-  document.querySelectorAll('.view').forEach((el) => {
-    el.hidden = el.dataset.view !== nomeView;
-  });
-  document.getElementById('bottom-bar').hidden = nomeView !== 'lista';
-  document.getElementById('btn-abrir-adicionar').hidden = nomeView !== 'lista';
-
-  if (!direcao) return;
-
-  const viewAlvo = document.querySelector(`.view[data-view="${nomeView}"]`);
-  if (!viewAlvo || viewAlvo === viewAnterior) return;
-
-  const classe = direcao === 'voltar' ? 'view-entrando-voltar' : 'view-entrando-frente';
-  viewAlvo.classList.remove('view-entrando-frente', 'view-entrando-voltar');
-  void viewAlvo.offsetWidth; // força reflow pra reiniciar a animação mesmo entrando na mesma view de novo
-  viewAlvo.classList.add(classe);
 }
 
 // --- Renderização da lista ativa ---
@@ -168,42 +109,11 @@ function criarLinhaItem(item) {
 
 // --- Totais ---
 
-function calcularValorTotalItem(item) {
-  if (item.modoPreco === 'unitario') {
-    return (item.valor || 0) * (item.quantidade || 0);
-  }
-  return item.valor || 0;
-}
-
 function renderizarTotais() {
   const total = listaAtualCache.reduce((soma, item) => soma + calcularValorTotalItem(item), 0);
   const noCarrinho = listaAtualCache.filter((item) => item.noCarrinho).length;
   document.getElementById('total-valor').textContent = formatarReais(total);
   document.getElementById('total-progresso').textContent = `${noCarrinho}/${listaAtualCache.length} itens`;
-}
-
-// --- Formatação ---
-
-function formatarReais(valor) {
-  return (valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-function formatarQuantidade(quantidade) {
-  return Number(quantidade).toLocaleString('pt-BR', { maximumFractionDigits: 3 });
-}
-
-function formatarData(isoString) {
-  return new Date(isoString).toLocaleString('pt-BR', {
-    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
-  });
-}
-
-function formatarDetalheItem(item) {
-  const partes = [];
-  if (item.marca) partes.push(item.marca);
-  partes.push(`${formatarQuantidade(item.quantidade)} ${item.unidade}`);
-  partes.push(formatarReais(calcularValorTotalItem(item)));
-  return partes.join(' · ');
 }
 
 // --- Formulário de adicionar/editar item ---
@@ -431,67 +341,6 @@ async function finalizarCompra() {
   mostrarToast('Compra finalizada e salva no histórico!');
 }
 
-// --- Histórico ---
-
-async function abrirHistorico(direcao) {
-  const historico = await buscarHistorico();
-  const container = document.getElementById('lista-historico');
-  container.innerHTML = '';
-
-  if (historico.length === 0) {
-    container.innerHTML = '<p class="estado-vazio"><span class="estado-vazio-icone">🧾</span><br>Nenhuma compra finalizada ainda.</p>';
-  } else {
-    historico.forEach((compra, indice) => {
-      const linha = document.createElement('button');
-      linha.className = 'historico-linha entrada-item';
-      linha.style.animationDelay = `${Math.min(indice * 30, 300)}ms`;
-
-      const dataEl = document.createElement('span');
-      dataEl.className = 'historico-data';
-      dataEl.textContent = formatarData(compra.data);
-
-      const totalEl = document.createElement('span');
-      totalEl.className = 'historico-total';
-      totalEl.textContent = formatarReais(compra.valorTotal);
-
-      linha.appendChild(dataEl);
-      linha.appendChild(totalEl);
-      linha.addEventListener('click', () => abrirDetalheCompra(compra));
-      container.appendChild(linha);
-    });
-  }
-  mostrarView('historico', direcao || 'frente');
-}
-
-function abrirDetalheCompra(compra) {
-  document.getElementById('detalhe-data').textContent = formatarData(compra.data);
-  document.getElementById('detalhe-total').textContent = formatarReais(compra.valorTotal);
-
-  const container = document.getElementById('detalhe-itens');
-  container.innerHTML = '';
-
-  compra.itens.forEach((item, indice) => {
-    const linha = document.createElement('div');
-    linha.className = 'item-linha somente-leitura entrada-item';
-    linha.style.animationDelay = `${Math.min(indice * 30, 300)}ms`;
-
-    const info = document.createElement('div');
-    info.className = 'item-info';
-    const nomeEl = document.createElement('span');
-    nomeEl.className = 'item-nome';
-    nomeEl.textContent = item.nome;
-    const detalheEl = document.createElement('span');
-    detalheEl.className = 'item-detalhe';
-    detalheEl.textContent = formatarDetalheItem(item);
-    info.appendChild(nomeEl);
-    info.appendChild(detalheEl);
-    linha.appendChild(info);
-    container.appendChild(linha);
-  });
-
-  mostrarView('detalhe', 'frente');
-}
-
 // --- Backup (exportar / importar JSON) ---
 
 async function exportarBackupParaArquivo() {
@@ -537,34 +386,9 @@ async function onArquivoBackupSelecionado(evento) {
   }
 }
 
-// --- Sheets genéricas ---
-
-function abrirSheet(id) {
-  document.getElementById(id).hidden = false;
-  document.body.classList.add('sheet-aberta');
-}
-
-function fecharSheet(id) {
-  document.getElementById(id).hidden = true;
-  document.body.classList.remove('sheet-aberta');
-}
-
-// --- Toast ---
-
-let toastTimeoutId = null;
-function mostrarToast(mensagem) {
-  const toast = document.getElementById('toast');
-  toast.textContent = mensagem;
-  toast.classList.add('visivel');
-  clearTimeout(toastTimeoutId);
-  toastTimeoutId = setTimeout(() => toast.classList.remove('visivel'), 2200);
-}
-
 // --- Wiring de eventos ---
 
 function configurarEventos() {
-  document.getElementById('btn-iniciar-compra').addEventListener('click', () => mostrarView('lista', 'frente'));
-  document.getElementById('btn-alternar-tema').addEventListener('click', alternarTema);
   document.getElementById('btn-abrir-adicionar').addEventListener('click', () => abrirFormularioItem(null));
   document.getElementById('btn-fechar-sheet').addEventListener('click', fecharFormularioItem);
   document.getElementById('form-item').addEventListener('submit', salvarItem);
@@ -582,20 +406,11 @@ function configurarEventos() {
 
   document.getElementById('btn-finalizar-compra').addEventListener('click', finalizarCompra);
 
-  document.getElementById('btn-ir-historico').addEventListener('click', () => abrirHistorico('frente'));
-  document.getElementById('btn-voltar-lista').addEventListener('click', () => mostrarView('lista', 'voltar'));
-  document.getElementById('btn-voltar-historico').addEventListener('click', () => abrirHistorico('voltar'));
-
   document.getElementById('btn-abrir-backup').addEventListener('click', () => abrirSheet('sheet-backup'));
   document.getElementById('btn-fechar-backup').addEventListener('click', () => fecharSheet('sheet-backup'));
   document.getElementById('btn-exportar-backup').addEventListener('click', exportarBackupParaArquivo);
   document.getElementById('btn-importar-backup').addEventListener('click', acionarImportarBackup);
   document.getElementById('input-backup-import').addEventListener('change', onArquivoBackupSelecionado);
 
-  document.querySelectorAll('[data-fechar-sheet]').forEach((el) => {
-    el.addEventListener('click', () => {
-      document.querySelectorAll('.sheet').forEach((sheet) => { sheet.hidden = true; });
-      document.body.classList.remove('sheet-aberta');
-    });
-  });
+  configurarFechamentoDeSheets();
 }
