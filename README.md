@@ -42,8 +42,10 @@ implementação futura.
 - **`catalogo`** — `{ id, nome, nomeNormalizado, categoria, unidadePadrao }`.
   Semeado automaticamente a partir de `js/catalogo.js` na primeira
   execução (só se a store estiver vazia).
-- **`listaAtual`** — `{ id, nome, categoria, quantidade, unidade, valor,
-  modoPreco, noCarrinho, catalogoId, criadoEm }`. A lista em andamento.
+- **`listaAtual`** — `{ id, nome, marca, categoria, quantidade, unidade,
+  valor, modoPreco, noCarrinho, catalogoId, criadoEm }`. A lista em
+  andamento. `marca` é opcional e fica só no item da lista, não no
+  catálogo (o catálogo é genérico por produto; a marca muda a cada compra).
 - **`historico`** — `{ id, data, valorTotal, itens[] }`. `itens` é um
   *snapshot* da lista no momento de finalizar a compra — não referencia o
   catálogo, então compras antigas continuam corretas mesmo se um produto

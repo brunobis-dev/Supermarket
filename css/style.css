@@ -351,6 +351,11 @@ body.sheet-aberta {
   color: var(--cor-texto-muted);
   margin-bottom: 6px;
 }
+.campo-opcional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
 .campo input, .campo select {
   width: 100%;
   min-height: var(--altura-toque-min);

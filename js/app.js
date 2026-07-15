@@ -95,7 +95,7 @@ function criarLinhaItem(item) {
   nomeEl.textContent = item.nome;
   const detalheEl = document.createElement('span');
   detalheEl.className = 'item-detalhe';
-  detalheEl.textContent = `${formatarQuantidade(item.quantidade)} ${item.unidade} · ${formatarReais(valorTotalItem)}`;
+  detalheEl.textContent = formatarDetalheItem(item);
   info.appendChild(nomeEl);
   info.appendChild(detalheEl);
   info.addEventListener('click', () => abrirFormularioItem(item));
@@ -145,6 +145,14 @@ function formatarData(isoString) {
   });
 }
 
+function formatarDetalheItem(item) {
+  const partes = [];
+  if (item.marca) partes.push(item.marca);
+  partes.push(`${formatarQuantidade(item.quantidade)} ${item.unidade}`);
+  partes.push(formatarReais(calcularValorTotalItem(item)));
+  return partes.join(' · ');
+}
+
 // --- Formulário de adicionar/editar item ---
 
 function abrirFormularioItem(itemExistente) {
@@ -154,6 +162,7 @@ function abrirFormularioItem(itemExistente) {
   document.getElementById('form-item').reset();
   document.getElementById('sheet-titulo').textContent = itemExistente ? 'Editar item' : 'Adicionar item';
   document.getElementById('campo-nome').value = itemExistente ? itemExistente.nome : '';
+  document.getElementById('campo-marca').value = itemExistente ? (itemExistente.marca || '') : '';
   document.getElementById('campo-quantidade').value = itemExistente ? itemExistente.quantidade : 1;
   document.getElementById('campo-unidade').value = itemExistente ? itemExistente.unidade : 'un';
   document.getElementById('campo-categoria').value = itemExistente ? itemExistente.categoria : 'Mercearia';
@@ -251,6 +260,7 @@ async function salvarItem(evento) {
   evento.preventDefault();
 
   const nome = document.getElementById('campo-nome').value.trim();
+  const marca = document.getElementById('campo-marca').value.trim();
   const quantidade = parseFloat(document.getElementById('campo-quantidade').value) || 0;
   const unidade = document.getElementById('campo-unidade').value;
   const categoria = document.getElementById('campo-categoria').value;
@@ -265,6 +275,7 @@ async function salvarItem(evento) {
 
   const item = {
     nome,
+    marca,
     quantidade,
     unidade,
     categoria,
@@ -416,7 +427,7 @@ function abrirDetalheCompra(compra) {
     nomeEl.textContent = item.nome;
     const detalheEl = document.createElement('span');
     detalheEl.className = 'item-detalhe';
-    detalheEl.textContent = `${formatarQuantidade(item.quantidade)} ${item.unidade} · ${formatarReais(calcularValorTotalItem(item))}`;
+    detalheEl.textContent = formatarDetalheItem(item);
     info.appendChild(nomeEl);
     info.appendChild(detalheEl);
     linha.appendChild(info);
