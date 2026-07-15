@@ -578,10 +578,6 @@ function configurarEventos() {
   document.getElementById('btn-importar-backup').addEventListener('click', acionarImportarBackup);
   document.getElementById('input-backup-import').addEventListener('change', onArquivoBackupSelecionado);
 
-  document.getElementById('btn-camera').addEventListener('click', () => {
-    mostrarToast('Reconhecimento por foto chega em breve.');
-  });
-
   document.querySelectorAll('[data-fechar-sheet]').forEach((el) => {
     el.addEventListener('click', () => {
       document.querySelectorAll('.sheet').forEach((sheet) => { sheet.hidden = true; });

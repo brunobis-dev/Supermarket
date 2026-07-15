@@ -32,10 +32,8 @@ MVP completo:
 - Exportar/importar backup em JSON
 - Offline-first via Service Worker (cache-first do app shell)
 
-Fase 2 (reconhecimento de produto por foto via API da Anthropic) **não
-está implementada** — o botão de câmera no formulário existe mas só
-mostra um aviso "em breve". Ver `js/camera.js` para o plano de
-implementação futura.
+Reconhecimento de produto por foto (via API da Anthropic) foi cogitado
+mas descartado — não faz parte do app.
 
 ## Modelo de dados (IndexedDB, banco `listaDeMercadoDB`)
 
@@ -61,7 +59,6 @@ css/style.css          tema neutro + acento verde, mobile-first, safe-area
 js/db.js               toda a lógica do IndexedDB (sem dependências)
 js/catalogo.js          seed inicial de produtos + listas de categorias/unidades
 js/app.js               renderização, eventos, autocomplete, totais, histórico, backup
-js/camera.js            placeholder da Fase 2 (não implementada)
 icons/                  ícones PWA (192, 512, 512 maskable, apple-touch-icon)
 scripts/generate-icons.js  gera os ícones acima (rodar com `node scripts/generate-icons.js`)
 ```
