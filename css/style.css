@@ -137,6 +137,25 @@ ul {
 main {
   padding: 12px 12px calc(140px + env(safe-area-inset-bottom));
   min-height: 100%;
+  overflow-x: hidden;
+}
+
+/* Transição ao navegar entre telas (início/lista/histórico/detalhe) —
+   um leve deslize + fade que reforça a sensação de "outra página",
+   não uma troca instantânea de conteúdo. */
+@keyframes entrar-pagina-direita {
+  from { transform: translateX(32px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes entrar-pagina-esquerda {
+  from { transform: translateX(-32px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.view-entrando-frente {
+  animation: entrar-pagina-direita 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.view-entrando-voltar {
+  animation: entrar-pagina-esquerda 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .view-header-secundaria {

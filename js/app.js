@@ -58,12 +58,24 @@ function registrarServiceWorker() {
 
 // --- Navegação entre views ---
 
-function mostrarView(nomeView) {
+function mostrarView(nomeView, direcao) {
+  const viewAnterior = document.querySelector('.view:not([hidden])');
+
   document.querySelectorAll('.view').forEach((el) => {
     el.hidden = el.dataset.view !== nomeView;
   });
   document.getElementById('bottom-bar').hidden = nomeView !== 'lista';
   document.getElementById('btn-abrir-adicionar').hidden = nomeView !== 'lista';
+
+  if (!direcao) return;
+
+  const viewAlvo = document.querySelector(`.view[data-view="${nomeView}"]`);
+  if (!viewAlvo || viewAlvo === viewAnterior) return;
+
+  const classe = direcao === 'voltar' ? 'view-entrando-voltar' : 'view-entrando-frente';
+  viewAlvo.classList.remove('view-entrando-frente', 'view-entrando-voltar');
+  void viewAlvo.offsetWidth; // força reflow pra reiniciar a animação mesmo entrando na mesma view de novo
+  viewAlvo.classList.add(classe);
 }
 
 // --- Renderização da lista ativa ---
@@ -421,7 +433,7 @@ async function finalizarCompra() {
 
 // --- Histórico ---
 
-async function abrirHistorico() {
+async function abrirHistorico(direcao) {
   const historico = await buscarHistorico();
   const container = document.getElementById('lista-historico');
   container.innerHTML = '';
@@ -448,7 +460,7 @@ async function abrirHistorico() {
       container.appendChild(linha);
     });
   }
-  mostrarView('historico');
+  mostrarView('historico', direcao || 'frente');
 }
 
 function abrirDetalheCompra(compra) {
@@ -477,7 +489,7 @@ function abrirDetalheCompra(compra) {
     container.appendChild(linha);
   });
 
-  mostrarView('detalhe');
+  mostrarView('detalhe', 'frente');
 }
 
 // --- Backup (exportar / importar JSON) ---
@@ -551,7 +563,7 @@ function mostrarToast(mensagem) {
 // --- Wiring de eventos ---
 
 function configurarEventos() {
-  document.getElementById('btn-iniciar-compra').addEventListener('click', () => mostrarView('lista'));
+  document.getElementById('btn-iniciar-compra').addEventListener('click', () => mostrarView('lista', 'frente'));
   document.getElementById('btn-alternar-tema').addEventListener('click', alternarTema);
   document.getElementById('btn-abrir-adicionar').addEventListener('click', () => abrirFormularioItem(null));
   document.getElementById('btn-fechar-sheet').addEventListener('click', fecharFormularioItem);
@@ -570,9 +582,9 @@ function configurarEventos() {
 
   document.getElementById('btn-finalizar-compra').addEventListener('click', finalizarCompra);
 
-  document.getElementById('btn-ir-historico').addEventListener('click', abrirHistorico);
-  document.getElementById('btn-voltar-lista').addEventListener('click', () => mostrarView('lista'));
-  document.getElementById('btn-voltar-historico').addEventListener('click', abrirHistorico);
+  document.getElementById('btn-ir-historico').addEventListener('click', () => abrirHistorico('frente'));
+  document.getElementById('btn-voltar-lista').addEventListener('click', () => mostrarView('lista', 'voltar'));
+  document.getElementById('btn-voltar-historico').addEventListener('click', () => abrirHistorico('voltar'));
 
   document.getElementById('btn-abrir-backup').addEventListener('click', () => abrirSheet('sheet-backup'));
   document.getElementById('btn-fechar-backup').addEventListener('click', () => fecharSheet('sheet-backup'));
