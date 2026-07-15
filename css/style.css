@@ -294,11 +294,12 @@ main {
   border-radius: 999px;
   background: linear-gradient(155deg, var(--cor-acento), var(--cor-acento-escuro));
   color: #fff;
-  font-size: 28px;
-  line-height: 1;
   box-shadow: var(--sombra-flutuante);
   z-index: 15;
   transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.botao-fab svg {
+  display: block;
 }
 .botao-fab:active {
   transform: scale(0.92);
