@@ -1,6 +1,6 @@
 // App shell em cache-first. Suba o número da versão a cada deploy para
 // invalidar o cache antigo automaticamente.
-const CACHE_NOME = 'lista-mercado-v4';
+const CACHE_NOME = 'lista-mercado-v5';
 
 const ARQUIVOS_APP_SHELL = [
   './',
