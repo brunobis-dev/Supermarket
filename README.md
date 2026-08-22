@@ -34,6 +34,11 @@ MVP completo:
 - Histórico de compras finalizadas, com detalhe de cada compra
 - Exportar/importar backup em JSON
 - Offline-first via Service Worker (cache-first do app shell)
+- Escanear o QR code da nota fiscal (NFC-e, apenas SP) pra registrar uma
+  compra direto no histórico, sem passar pela lista — ver
+  `docs/superpowers/specs/2026-08-18-escanear-nfce-design.md` e
+  `worker/README.md`. Depende de um Cloudflare Worker publicado à parte
+  (não funciona só com os arquivos estáticos).
 
 Reconhecimento de produto por foto (via API da Anthropic) foi cogitado
 mas descartado — não faz parte do app.
@@ -47,20 +52,23 @@ mas descartado — não faz parte do app.
   valor, modoPreco, noCarrinho, catalogoId, criadoEm }`. A lista em
   andamento. `marca` é opcional e fica só no item da lista, não no
   catálogo (o catálogo é genérico por produto; a marca muda a cada compra).
-- **`historico`** — `{ id, data, valorTotal, itens[] }`. `itens` é um
-  *snapshot* da lista no momento de finalizar a compra — não referencia o
-  catálogo, então compras antigas continuam corretas mesmo se um produto
-  do catálogo mudar de nome/categoria depois.
+- **`historico`** — `{ id, data, valorTotal, itens[], chaveAcesso? }`.
+  `itens` é um *snapshot* da lista no momento de finalizar a compra — não
+  referencia o catálogo, então compras antigas continuam corretas mesmo se
+  um produto do catálogo mudar de nome/categoria depois. `chaveAcesso`
+  (44 dígitos) só existe em compras importadas por QR code — usada pra
+  não registrar a mesma nota duas vezes.
 
 ## Estrutura de arquivos
 
 ```
-index.html              início — ilustração + "Iniciar compra" + link pro histórico
+index.html              início — ilustração + "Iniciar compra" + "Escanear nota fiscal" + link pro histórico
 lista.html               tela principal — lista ativa, formulário, backup
 historico.html            lista de compras finalizadas
 detalhe.html              detalhe de uma compra (lê ?id=N da URL)
+escanear.html             câmera + leitura do QR code da NFC-e (só SP)
 manifest.json             metadados do PWA (nome, ícones, cor de tema)
-service-worker.js         cache-first das 4 páginas + scripts, offline-first
+service-worker.js         cache-first das 5 páginas + scripts, offline-first
 css/style.css             tema neutro + acento verde, mobile-first, safe-area
 js/db.js                  toda a lógica do IndexedDB (sem dependências)
 js/catalogo.js             seed inicial de produtos + listas de categorias/unidades
@@ -69,8 +77,11 @@ js/inicio.js               boot de index.html
 js/lista.js                boot + toda a lógica de lista.html
 js/historico.js            boot + lógica de historico.html
 js/detalhe.js              boot + lógica de detalhe.html
+js/escanear.js              boot + lógica de escanear.html (câmera, decodificação, chamada ao worker)
+js/jsqr.js                  lib jsQR vendorizada (decodificação de QR code por pixel)
 icons/                     ícones PWA (192, 512, 512 maskable, apple-touch-icon)
 scripts/generate-icons.js  gera os ícones acima (rodar com `node scripts/generate-icons.js`)
+worker/                    Cloudflare Worker que busca/interpreta a nota da SEFAZ-SP (deploy separado — ver worker/README.md)
 ```
 
 ## Decisões de implementação

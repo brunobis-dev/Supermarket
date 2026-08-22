@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+  <meta name="theme-color" content="#2E9E6D">
+  <meta name="description" content="Escanear o QR code da nota fiscal para registrar uma compra.">
+
+  <script>
+    (function () {
+      var salvo = localStorage.getItem('tema');
+      var tema = (salvo === 'dark' || salvo === 'light')
+        ? salvo
+        : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-tema', tema);
+    })();
+  </script>
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mercado">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./css/style.css">
+
+  <title>Escanear nota fiscal — Lista de Mercado</title>
+</head>
+<body>
+  <header class="app-header-voltar">
+    <a href="./index.html" class="botao-icone" aria-label="Voltar">←</a>
+    <h1>Escanear nota fiscal</h1>
+  </header>
+
+  <main class="tela-escanear">
+    <div id="escanear-video-wrap" class="escanear-video-wrap">
+      <video id="escanear-video" playsinline muted></video>
+      <div class="escanear-mira"></div>
+    </div>
+
+    <p id="escanear-status" class="escanear-status">Aponte a câmera para o QR code da nota fiscal.</p>
+
+    <div id="escanear-permissao" class="escanear-permissao" hidden>
+      <p>Não foi possível acessar a câmera. Verifique a permissão de câmera para este site nos Ajustes do Safari e tente novamente.</p>
+      <button id="btn-tentar-de-novo" class="botao-secundario">Tentar de novo</button>
+    </div>
+  </main>
+
+  <canvas id="escanear-canvas" hidden></canvas>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="./js/jsqr.js"></script>
+  <script src="./js/catalogo.js"></script>
+  <script src="./js/db.js"></script>
+  <script src="./js/comum.js"></script>
+  <script src="./js/escanear.js"></script>
+</body>
+</html>

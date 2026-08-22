@@ -1,6 +1,6 @@
 // App shell em cache-first. Suba o número da versão a cada deploy para
 // invalidar o cache antigo automaticamente.
-const CACHE_NOME = 'lista-mercado-v10';
+const CACHE_NOME = 'lista-mercado-v12';
 
 const ARQUIVOS_APP_SHELL = [
   './',
@@ -8,6 +8,7 @@ const ARQUIVOS_APP_SHELL = [
   './lista.html',
   './historico.html',
   './detalhe.html',
+  './escanear.html',
   './manifest.json',
   './css/style.css',
   './js/catalogo.js',
@@ -17,6 +18,8 @@ const ARQUIVOS_APP_SHELL = [
   './js/lista.js',
   './js/historico.js',
   './js/detalhe.js',
+  './js/escanear.js',
+  './js/jsqr.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',

@@ -183,6 +183,11 @@ async function salvarCompraNoHistorico(compra) {
   return adicionar(STORE_HISTORICO, compra);
 }
 
+async function buscarCompraPorChaveAcesso(chaveAcesso) {
+  const itens = await getAll(STORE_HISTORICO);
+  return itens.find((item) => item.chaveAcesso === chaveAcesso) || null;
+}
+
 async function exportarBackup() {
   const [catalogo, listaAtual, historico] = await Promise.all([
     getAll(STORE_CATALOGO),

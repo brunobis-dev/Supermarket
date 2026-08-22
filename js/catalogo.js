@@ -92,6 +92,7 @@ const CATEGORIAS = [
   'Bebidas',
   'Padaria',
   'Congelados',
+  'Outros',
 ];
 
 const UNIDADES = ['un', 'kg', 'g', 'L', 'ml', 'dz'];
